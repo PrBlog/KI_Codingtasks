@@ -48,9 +48,12 @@ class Board(Map):
     y_range: int = 24
     cellrange: int = x_range*y_range
     cells: dict
+    smellscape: list
 
     def __init__(self) -> None:
         self.cells = {list: [] for list in range(self.cellrange)}
+        smellscape = [[0 for x in range(self.x_range)] for y in range(self.y_range)]
+
 
     def populate(self, Creatures):
         for Creature in Creatures:
@@ -86,6 +89,25 @@ class Board(Map):
             return y
         else: raise 'not within boundaries'
     
+    def get_coordinates_from_location(self, location: int):
+        x_coord = self.find_x(location)
+        y_coord = self.find_y(location)
+        return (x_coord, y_coord)
+
+    def compute_smell(self):
+#        (x_coord,y_coord) = self.get_coordinates_from_location(location)
+        positions_of_cows = [self.get_coordinates_from_location(cell) for cell in self.cells for creature in self.cells[cell] if isinstance(creature, Cow) and creature.alive]
+    	for x in range(self.x_range):
+            for y in range(self.y_range):
+                self.smellscape[x][y] = self.smellscape[x][y] / 2
+                if self.smellscape[x][y] != 0: 
+                    for surr_x in range(-1,2,1):
+                        for surr_y in range(-1,2,1):
+                            if self.smellscape[x][y] >= self.smellscape[x+surr_x][y+surr_y]: self.smellscape[x+surr_x][y+surr_y] += self.smellscape[x][y] / 2
+        for cowposition in positions_of_cows:
+            (x_pos,y_pos) = cowposition
+            self.smellscape[x_pos][y_pos] += 100
+
 
     
 def compute_environment(location: int, world: Board) -> dict:
@@ -102,3 +124,6 @@ def compute_environment(location: int, world: Board) -> dict:
             cellcounter += 1 #artefact, left for testing and debugging
     return environment
             
+
+    
+

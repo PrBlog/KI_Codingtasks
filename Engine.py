@@ -17,6 +17,7 @@ def main():
     frame_counter: int = 100
     for i in range(frame_counter):
         """locate Creatures"""
+        world.compute_smell()
         for key in world.cells:
             if world.cells[key] != None:
                 for creature in world.cells[key]:
